@@ -1,9 +1,8 @@
-/* eslint-disable no-bitwise */
 exports = typeof window === 'undefined' ? global : window;
 
 exports.numbersAnswers = {
   valueAtBit: function(num, bit) {
-    return 1 & (num >> (bit - 1));
+    return num >> bit - 1 & 0x1;
   },
 
   base10: function(str) {
@@ -11,34 +10,25 @@ exports.numbersAnswers = {
   },
 
   convertToBinary: function(num) {
-    var arr = [];
-
-    for (var i = 7; i > -1; i--) {
-      arr.push( num & (1 << i) ? 1 : 0 );
+    var binary = '';
+    for (var i = 0, e = Math.ceil(Math.log2(num)); i <= e; i++) {
+      binary = ((num & 0x1) ? "1" : "0") + binary;
+      num = num >> 1;
     }
-
-    return arr.join('');
+    return binary;
   },
 
   multiply: function(a, b) {
-    a = adjust(a);
-    b = adjust(b);
-
-    var result = (a.adjusted * b.adjusted) / (a.multiplier * b.multiplier);
-
-    return result;
-
-    function adjust(num) {
-      var exponent, multiplier;
-
+    function adjusted(num) {
       if (num < 1) {
-        exponent = Math.floor( Math.log(num) * -1 );
-        multiplier = Math.pow(10, exponent);
-
+        var multiplier = Math.pow(10, Math.floor(Math.log(num) * -1));
         return {adjusted: num * multiplier, multiplier: multiplier};
-      }
 
+      }
       return {adjusted: num, multiplier: 1};
     }
+    a = adjusted(a);
+    b = adjusted(b);
+    return a.adjusted * b.adjusted / (a.multiplier * b.multiplier);
   }
 };

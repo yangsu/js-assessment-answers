@@ -2,54 +2,32 @@ exports = typeof window === 'undefined' ? global : window;
 
 exports.arraysAnswers = {
   indexOf: function(arr, item) {
-
-    /*
-    if (Array.prototype.indexOf) { return arr.indexOf(item); }
-    */
-
-    for (var i = 0, len = arr.length; i < len; i++) {
+    for (var i = 0; i < arr.length; i++) {
       if (arr[i] === item) {
         return i;
       }
     }
-
     return -1;
   },
 
   sum: function(arr) {
-    var sum = 0;
-
-    for (var i = 0, len = arr.length; i < len; i++) {
-      sum += arr[i];
-    }
-
-    return sum;
+    return arr.reduce(function(sum, item) {
+      return sum + item;
+    }, 0);
   },
 
   remove: function(arr, item) {
-    var ret = [];
-
-    for (var i = 0, len = arr.length; i < len; i++) {
-      if (arr[i] !== item) {
-        ret.push(arr[i]);
-      }
-    }
-
-    return ret;
+    return arr.filter(function(val) {
+      return val !== item;
+    });
   },
 
   removeWithoutCopy: function(arr, item) {
-    var i;
-    var len;
-
-    for (i = 0, len = arr.length; i < len; i++) {
-      if (arr[i] === item) {
-        arr.splice(i, 1);
-        i--;
-        len--;
-      }
+    var index = arr.indexOf(item);
+    while (index >= 0) {
+      arr.splice(index, 1);
+      index = arr.indexOf(item);
     }
-
     return arr;
   },
 
@@ -69,7 +47,7 @@ exports.arraysAnswers = {
   },
 
   curtail: function(arr) {
-    arr.shift(arr);
+    arr.shift();
     return arr;
   },
 
@@ -83,53 +61,40 @@ exports.arraysAnswers = {
   },
 
   count: function(arr, item) {
+    var index = arr.indexOf(item);
     var count = 0;
-
-    for (var i = 0, len = arr.length; i < len; i++) {
-      if (arr[i] === item) {
-        count++;
-      }
+    while (index >= 0) {
+      count++;
+      index = arr.indexOf(item, index + 1);
     }
-
     return count;
   },
 
   duplicates: function(arr) {
-    var seen = {};
-    var dupes = [];
-
-    for (var i = 0, len = arr.length; i < len; i++) {
-      seen[arr[i]] = seen[arr[i]] ? seen[arr[i]] + 1 : 1;
-    }
-
-    for (var item in seen) {
-      if (seen.hasOwnProperty(item) && seen[item] > 1) {
-        dupes.push(item);
+    var map = {};
+    var dups = [];
+    arr.forEach(function(item) {
+      map[item] = (map[item] || 0) + 1;
+      if (map[item] > 1 && dups.indexOf(item) === -1) {
+        dups.push(item);
       }
-    }
-
-    return dupes;
+    });
+    return dups;
   },
 
   square: function(arr) {
-    var ret = [];
-
-    for (var i = 0, len = arr.length; i < len; i++) {
-      ret.push(arr[i] * arr[i]);
-    }
-
-    return ret;
+    return arr.map(function(x) {
+      return x * x;
+    });
   },
 
   findAllOccurrences: function(arr, target) {
-    var ret = [];
-
-    for (var i = 0, len = arr.length; i < len; i++) {
-      if (arr[i] === target) {
-        ret.push(i);
-      }
+    var index = arr.indexOf(target);
+    var occurrences = [];
+    while (index >= 0) {
+      occurrences.push(index);
+      index = arr.indexOf(target, index + 1);
     }
-
-    return ret;
+    return occurrences;
   }
 };

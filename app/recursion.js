@@ -2,80 +2,64 @@ exports = typeof window === 'undefined' ? global : window;
 
 exports.recursionAnswers = {
   listFiles: function(data, dirName) {
-    var listOfFiles = [];
-    var dirs = [];
-
-    function processDir(dir) {
-      var i;
-      var len;
-      var file;
-      var files = dir.files;
-
-      dirs.push( dir.dir );
-
-      for (i = 0, len = files.length; i < len; i++) {
-        file = files[i];
-        if (typeof file === 'string') {
-          if (!dirName || dirs.indexOf(dirName) > -1) {
-            listOfFiles.push(files[i]);
-          }
-        } else {
-          processDir(files[i]);
-        }
-      }
-
-      dirs.pop();
+    var dir;
+    if (dirName) {
+      dir = data.files.find(function(file) {
+        return file.dir === dirName;
+      });
+    } else {
+      dir = data;
     }
-
-    processDir(data);
-
-
-    return listOfFiles;
+    function listFiles(item) {
+      if (item.dir) {
+        return item.files.reduce(function(results, file) {
+          return results.concat(listFiles(file));
+        }, []);
+      }
+      return [item];
+    }
+    return listFiles(dir);
   },
 
-  permute: function(arr) {
-    // http://stackoverflow.com/a/11509565/54468
-    var temp = [];
-    var answer = [];
-
-    function logResult() {
-      answer.push(
-        // make a copy of temp using .slice()
-        // so we can continue to work with temp
-        temp.slice()
-      );
-    }
-
-    function doIt() {
-      var i;
-      var len;
-      var item;
-
-      for (i = 0, len = arr.length; i < len; i++) {
-        // remove the item at index i
-        item = arr.splice(i, 1)[0];
-
-        // add that item to the array we're building up
-        temp.push(item);
-
-        if (arr.length) {
-          // if there's still anything left in the array,
-          // recurse over what's left
-          doIt();
-        } else {
-          // otherwise, log the result and move on
-          logResult();
+  permute: function permute(arr) {
+    if (arr.length === 1) {
+      return [arr];
+    } else if (arr.length > 1) {
+      var newArr = arr.slice(0);
+      var head = newArr.shift();
+      return permute(newArr).reduce(function(permutations, permutation) {
+        for (var i = 0, l = permutation.length; i <= l; i++) {
+          var newPermutation = permutation.slice(0);
+          newPermutation.splice(i, 0, head);
+          permutations.push(newPermutation);
         }
-
-        // restore the item we removed at index i
-        // and remove it from our temp array
-        arr.splice(i, 0, item);
-        temp.pop();
-      }
-
-      return answer;
+        return permutations;
+      }, []);
     }
+    return [];
+  },
 
-    return doIt();
+  fibonacci: function fibonacci(n) {
+    if (n <= 2) {
+      return 1;
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+  },
+
+  validParentheses: function validParentheses(n) {
+    if (n <= 0) {
+      return [];
+    } else if (n === 1) {
+      return ['()'];
+    }
+    return validParentheses(n - 1).reduce(function(parens, sequence) {
+      parens.push('()' + sequence);
+      parens.push('(' + sequence + ')');
+      if (sequence + '()' !== '()' + sequence) {
+        parens.push(sequence + '()');
+      }
+      return parens;
+    }, []);
   }
+
 };
